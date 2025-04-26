@@ -1,5 +1,3 @@
-from app.routes.social.router import socialRouter
-from app.routes.authentications.router import authRouter as custom_auth_router
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import JSONResponse, RedirectResponse
 from app.exceptions import AuthError
