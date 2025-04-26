@@ -1,0 +1,14 @@
+fastapi
+pydantic
+requests
+pydantic-settings
+uvicorn[standard]
+sqlalchemy
+uuid
+psycopg2-binary
+python-jose
+passlib
+bcrypt
+pydantic[email]
+pyjwt
+jsonify
