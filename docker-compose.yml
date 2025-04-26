@@ -1,0 +1,36 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8001 --reload
+    restart: unless-stopped
+    ports:
+      - "8001:8001"
+    environment:
+      - ENV_FILE=${ENV_FILE}
+    volumes:
+      - .:/app
+    depends_on:
+      - postgres-db
+
+  # Comment out everything below this point if you are using an external Postgres database
+  postgres-db:
+    image: postgres
+    restart: always
+    shm_size: 128mb
+    volumes:
+      - ./volumes/postgres-db:/var/lib/postgresql/data
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
