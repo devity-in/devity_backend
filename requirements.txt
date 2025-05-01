@@ -4,6 +4,7 @@ requests
 pydantic-settings
 uvicorn[standard]
 sqlalchemy
+sqlmodel
 uuid
 psycopg2-binary
 python-jose

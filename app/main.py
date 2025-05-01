@@ -1,11 +1,18 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import JSONResponse, RedirectResponse
+from app.database.database import create_db_and_tables
 from app.exceptions import AuthError
 import logging
-from app.database.database import init_db
 
+# Correctly import the router objects from the route modules
+from app.routes.specs import router as specs_router 
+from app.routes.sdk import router as sdk_router # Assuming sdk.py also has a 'router' variable
+
+# Import routes here (will be done in later commits)
+# from app.routes import sdk_router
 
 description = """
+Devity Core Backend API
 """
 
 
@@ -13,8 +20,12 @@ tags_metadata = [
 
 ]
 
-# Initialize the database
-init_db()
+# Define the startup event handler
+async def startup_event():
+    print("Application startup...")
+    # Call the function to create tables on startup
+    create_db_and_tables()
+    print("Application startup complete.")
 
 # notice that the app instance is called `app`, this is very important.
 app = FastAPI(
@@ -22,6 +33,7 @@ app = FastAPI(
     description=description,
     version="0.0.1",
     openapi_tags=tags_metadata,
+    on_startup=[startup_event] # Register the startup event
 )
 
 
@@ -51,6 +63,11 @@ async def generic_exception_handler(request, exc: Exception):
 
 # app.include_router(custom_auth_router, prefix="/auth",
 #                    tags=["Custom Authentication Service"])
+
+# Include the specs router
+app.include_router(specs_router, prefix="/specs", tags=["Specs"])
+# Include the sdk router
+app.include_router(sdk_router, prefix="/sdk", tags=["SDK"])
 
 
 @app.get("/")
