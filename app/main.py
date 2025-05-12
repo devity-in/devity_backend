@@ -1,5 +1,6 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import JSONResponse, RedirectResponse
+from fastapi.middleware.cors import CORSMiddleware
 from app.database.database import create_db_and_tables
 from app.exceptions import AuthError
 import logging
@@ -7,6 +8,7 @@ import logging
 # Correctly import the router objects from the route modules
 from app.routes.specs import router as specs_router 
 from app.routes.sdk import router as sdk_router # Assuming sdk.py also has a 'router' variable
+from app.routes.projects import router as projects_router # Import projects router
 
 # Import routes here (will be done in later commits)
 # from app.routes import sdk_router
@@ -34,6 +36,23 @@ app = FastAPI(
     version="0.0.1",
     openapi_tags=tags_metadata,
     on_startup=[startup_event] # Register the startup event
+)
+
+# CORS Configuration
+# TODO: Restrict origins for production
+origins = [
+    "http://localhost",
+    "http://localhost:8080", # Default flutter run web port
+    "http://localhost:8000", # Sometimes used for web dev
+    # Add other origins if needed (e.g., your deployed console URL)
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True, 
+    allow_methods=["*"], # Allows all methods
+    allow_headers=["*"], # Allows all headers
 )
 
 
@@ -68,6 +87,8 @@ async def generic_exception_handler(request, exc: Exception):
 app.include_router(specs_router, prefix="/specs", tags=["Specs"])
 # Include the sdk router
 app.include_router(sdk_router, prefix="/sdk", tags=["SDK"])
+# Include the projects router
+app.include_router(projects_router, prefix="/projects", tags=["Projects"])
 
 
 @app.get("/")

@@ -2,13 +2,17 @@ import uuid
 from datetime import datetime
 from typing import Optional, Dict, Any
 
-from sqlmodel import Field, SQLModel, JSON, Column
+from sqlmodel import Field, SQLModel, JSON, Column, Relationship
+
+# Forward reference for relationship typing
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from .project import Project # Assuming Project model is in project.py
 
 
 class SpecBase(SQLModel):
-    # Assuming project_id links to a Project model (TBD)
-    # Making it optional for now until Project model is created
-    # project_id: Optional[str] = Field(index=True, foreign_key="project.id") # Commented out for M1
+    # Link to the Project model via foreign key
+    project_id: uuid.UUID = Field(index=True, foreign_key="project.id") 
     # Store the main spec content as JSON
     content: Dict[str, Any] = Field(sa_column=Column(JSON), default={})
 
@@ -28,12 +32,12 @@ class Spec(SpecBase, table=True):
         nullable=False
     )
 
-    # Define relationships later if needed, e.g.:
-    # project: Optional["Project"] = Relationship(back_populates="specs")
+    # Define the many-to-one relationship with Project
+    project: Optional["Project"] = Relationship(back_populates="specs")
 
 
 class SpecCreate(SpecBase):
-    # Potentially add fields required only on creation
+    # project_id is now required during creation via SpecBase
     pass
 
 
@@ -44,5 +48,14 @@ class SpecUpdate(SQLModel):
 
 class SpecRead(SpecBase):
     id: uuid.UUID
+    created_at: datetime
+    updated_at: datetime
+    # Optionally include project info when reading a spec
+    # project: Optional["ProjectRead"] = None # Assuming ProjectRead exists
+
+# New schema for summary list views (excludes content)
+class SpecSummaryRead(SQLModel):
+    id: uuid.UUID
+    project_id: uuid.UUID
     created_at: datetime
     updated_at: datetime 

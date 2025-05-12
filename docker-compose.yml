@@ -13,6 +13,8 @@ services:
       - .:/app
     depends_on:
       - postgres-db
+    networks:
+      - devity-network
 
   # Comment out everything below this point if you are using an external Postgres database
   postgres-db:
@@ -28,9 +30,17 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - devity-network
 
   adminer:
     image: adminer
     restart: always
     ports:
       - 8080:8080
+    networks:
+      - devity-network
+
+networks:
+  devity-network:
+    driver: bridge

@@ -28,7 +28,7 @@ def create_db_and_tables():
     # Import models here to ensure they are registered with SQLModel.metadata
     # IMPORTANT: Add imports for ALL your SQLModel models here
     from app.database.models.spec import Spec 
-    # from app.database.models.project import Project # Removed import as Project model/dependency is not used in M1
+    from app.database.models.project import Project # Ensure Project model is imported
 
     print("Creating database tables...")
     try:
